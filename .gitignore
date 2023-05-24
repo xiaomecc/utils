@@ -1,0 +1,11 @@
+logs
+tree.txt
+upload
+.idea
+test/models
+.git
+/tmp
+.history
+.air.conf
+tmp_dir
+/storage/*
