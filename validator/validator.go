@@ -27,8 +27,11 @@ func (cv *CustomValidator) Validate(r map[string]string, i interface{}) error {
 }
 
 func (cv *CustomValidator) Binder() {
-	if err := cv.validator.RegisterValidation("mobile", Mobile); err != nil {
-		log.Fatal("手机号码验证规则注册失败", err.Error())
+	if err := cv.validator.RegisterValidation("mobile86", Mobile86); err != nil {
+		log.Fatal("mobile rule reg error", err.Error())
+	}
+	if err := cv.validator.RegisterValidation("mobile880", Mobile880); err != nil {
+		log.Fatal("mobile rule reg error", err.Error())
 	}
 }
 
@@ -46,13 +49,23 @@ func getErrorMsg(r map[string]string, err error) string {
 	if errors.As(err, &je) {
 		return err.Error()
 	}
-	return "参数校验失败"
+	return "check error"
 }
 
-// Mobile 手机号验证
-var Mobile validator.Func = func(fl validator.FieldLevel) bool {
+// Mobile mobile validate
+var Mobile86 validator.Func = func(fl validator.FieldLevel) bool {
 	m := fl.Field().String()
 	pattern := `^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$`
+	ok, _ := regexp.MatchString(pattern, m)
+	if !ok {
+		return false
+	}
+	return true
+}
+
+var Mobile880 validator.Func = func(fl validator.FieldLevel) bool {
+	m := fl.Field().String()
+	pattern := `^(\+880)?(1){1}[56789]{1}(\d){8}`
 	ok, _ := regexp.MatchString(pattern, m)
 	if !ok {
 		return false
