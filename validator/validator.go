@@ -11,17 +11,19 @@ import (
 
 type CustomValidator struct {
 	validator *validator.Validate
+	lang      string
 }
 
-func NewValidate() *CustomValidator {
+func NewValidate(lang string) *CustomValidator {
 	return &CustomValidator{
 		validator: validator.New(),
+		lang:      lang,
 	}
 }
 
-func (cv *CustomValidator) Validate(r map[string]string, i interface{}) error {
+func (cv *CustomValidator) Validate(r map[string]map[string]string, i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
-		return errors.New(getErrorMsg(r, err))
+		return errors.New(cv.getErrorMsg(r, err))
 	}
 	return nil
 }
@@ -35,12 +37,12 @@ func (cv *CustomValidator) Binder() {
 	}
 }
 
-func getErrorMsg(r map[string]string, err error) string {
+func (cv *CustomValidator) getErrorMsg(r map[string]map[string]string, err error) string {
 	var ve validator.ValidationErrors
 	var je *json.UnmarshalTypeError
 	if errors.As(err, &ve) {
 		for _, v := range err.(validator.ValidationErrors) {
-			if message, exist := r[v.Field()+"."+v.Tag()]; exist {
+			if message, exist := r[v.Field()+"."+v.Tag()][cv.lang]; exist {
 				return message
 			}
 			return v.Error()
@@ -52,7 +54,7 @@ func getErrorMsg(r map[string]string, err error) string {
 	return "check error"
 }
 
-// Mobile mobile validate
+// Mobile86 Mobile mobile validate
 var Mobile86 validator.Func = func(fl validator.FieldLevel) bool {
 	m := fl.Field().String()
 	pattern := `^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\d{8}$`
